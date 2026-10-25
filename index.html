@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberHack: 系統破譯 - 解謎單機遊戲</title>
+  <title>CyberHack: 系統破譯 - 20關電路解謎</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -41,7 +41,7 @@
       align-items: center;
     }
 
-    /* CRT 螢幕復古掃描線與微光效果 */
+    /* CRT 螢幕復古掃描線效果 */
     .crt-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -62,9 +62,9 @@
     /* 遊戲主容器 */
     .terminal-wrapper {
       width: 90%;
-      max-width: 850px;
-      height: 650px;
-      max-height: 90vh;
+      max-width: 900px;
+      height: 700px;
+      max-height: 95vh;
       background: var(--panel-bg);
       border: 2px solid var(--border-color);
       border-radius: 8px;
@@ -105,7 +105,6 @@
       color: var(--neon-gold);
     }
 
-    /* 音效開關 */
     .sound-toggle {
       background: transparent;
       border: 1px solid var(--neon-cyan);
@@ -156,7 +155,7 @@
     /* 終端螢幕區域 */
     .terminal-body {
       flex: 1;
-      padding: 25px;
+      padding: 20px 25px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -166,13 +165,13 @@
     .log-area {
       background: #090c12;
       border: 1px solid var(--border-color);
-      padding: 15px;
+      padding: 12px 15px;
       border-radius: 4px;
-      height: 120px;
+      height: 100px;
       overflow-y: auto;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      margin-bottom: 15px;
+      font-size: 0.88rem;
+      line-height: 1.4;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     }
 
@@ -190,14 +189,13 @@
       align-items: center;
     }
 
-    /* 按鈕與金屬介面 */
     .btn-cyber {
       background: linear-gradient(180deg, #1e2838 0%, #101622 100%);
       border: 1px solid var(--neon-cyan);
       color: var(--neon-cyan);
       font-family: var(--font-title);
-      font-size: 1rem;
-      padding: 10px 20px;
+      font-size: 0.9rem;
+      padding: 8px 16px;
       cursor: pointer;
       border-radius: 4px;
       letter-spacing: 1px;
@@ -207,16 +205,83 @@
     .btn-cyber:hover {
       background: var(--neon-cyan);
       color: #000;
+      box-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    /* ================= 關卡 2 專屬：20關選關選單與矩陣 ================= */
+    .level-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 650px;
+    }
+
+    .sub-level-btn {
+      padding: 6px 0;
+      background: #141a26;
+      border: 1px solid var(--border-color);
+      color: #6a7b95;
+      font-family: var(--font-code);
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .sub-level-btn.active {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      background: rgba(0, 243, 255, 0.15);
+      box-shadow: 0 0 6px rgba(0, 243, 255, 0.4);
+    }
+
+    .sub-level-btn.cleared {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      background: rgba(0, 255, 102, 0.1);
+    }
+
+    .grid-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    /* 3x3 矩陣樣式 */
+    .grid-3x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 65px);
+      gap: 10px;
+    }
+
+    /* 4x4 矩陣樣式 */
+    .grid-4x4 {
+      display: grid;
+      grid-template-columns: repeat(4, 55px);
+      gap: 8px;
+    }
+
+    .node-btn {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #141a26;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .node-btn.active {
+      background: var(--neon-cyan);
+      border-color: #ffffff;
       box-shadow: 0 0 15px var(--neon-cyan);
     }
 
-    /* ================= 各關卡專屬 CSS ================= */
-    /* 關卡 1: 文字密碼輸入 */
-    .cipher-input-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
+    /* 關卡 1、3、4 樣式 */
+    .cipher-input-group { display: flex; gap: 10px; margin-top: 15px; }
     .cyber-input {
       background: #080a0f;
       border: 1px solid var(--neon-green);
@@ -231,29 +296,6 @@
       width: 220px;
     }
 
-    /* 關卡 2: 3x3 電路網格 */
-    .grid-3x3 {
-      display: grid;
-      grid-template-columns: repeat(3, 70px);
-      gap: 12px;
-      margin-top: 15px;
-    }
-    .node-btn {
-      width: 70px;
-      height: 70px;
-      background: #141a26;
-      border: 2px solid var(--border-color);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .node-btn.active {
-      background: var(--neon-cyan);
-      border-color: #ffffff;
-      box-shadow: 0 0 15px var(--neon-cyan);
-    }
-
-    /* 關卡 3: 鍵盤數字鎖 */
     .keypad-display {
       font-family: var(--font-title);
       font-size: 2rem;
@@ -280,17 +322,9 @@
       font-size: 1.2rem;
       cursor: pointer;
     }
-    .num-btn:hover {
-      border-color: var(--neon-green);
-      color: var(--neon-green);
-    }
+    .num-btn:hover { border-color: var(--neon-green); color: var(--neon-green); }
 
-    /* 關卡 4: 記憶光軸 */
-    .simon-grid {
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
-    }
+    .simon-grid { display: flex; gap: 15px; margin-top: 20px; }
     .simon-node {
       width: 65px;
       height: 120px;
@@ -305,10 +339,7 @@
     .simon-node.lit-2 { background: #00ff66; box-shadow: 0 0 20px #00ff66; border-color: #fff; }
     .simon-node.lit-3 { background: #ffcc00; box-shadow: 0 0 20px #ffcc00; border-color: #fff; }
 
-    /* 通關結算視窗 */
-    .win-panel {
-      text-align: center;
-    }
+    .win-panel { text-align: center; }
     .win-title {
       font-family: var(--font-title);
       font-size: 2.2rem;
@@ -323,7 +354,6 @@
   <div class="crt-overlay"></div>
 
   <div class="terminal-wrapper">
-    <!-- 頂部列 -->
     <header class="terminal-header">
       <div class="terminal-title">CYBERHACK // MAIN_FRAME</div>
       <div class="header-controls">
@@ -332,46 +362,70 @@
       </div>
     </header>
 
-    <!-- 關卡進度條 -->
     <div class="progress-bar">
       <div id="node-1" class="stage-node active">01. 密文解碼</div>
-      <div id="node-2" class="stage-node">02. 電路矩陣</div>
+      <div id="node-2" class="stage-node">02. 電路矩陣 (20關)</div>
       <div id="node-3" class="stage-node">03. 系統密碼</div>
       <div id="node-4" class="stage-node">04. 記憶超載</div>
     </div>
 
-    <!-- 終端內容與控制區 -->
     <div class="terminal-body">
-      <!-- 控制台 Log -->
       <div id="terminal-log" class="log-area">
         <div class="log-msg system">[SYSTEM] 安全主機連接成功。進入協定突破模式...</div>
       </div>
 
-      <!-- 謎題主要互動區 -->
-      <div id="puzzle-area" class="puzzle-container">
-        <!-- 內容由 JavaScript 動態生成渲染 -->
-      </div>
+      <div id="puzzle-area" class="puzzle-container"></div>
     </div>
   </div>
 
   <script>
     /**
-     * CyberHack Logic Core Engine
+     * CyberHack Engine v2.0 - 20 Levels Circuit Grid Edition
      */
     document.addEventListener('DOMContentLoaded', () => {
-      // 遊戲狀態
       let currentStage = 1;
       let soundEnabled = true;
       let startTime = Date.now();
       let timerInterval = null;
 
-      // DOM 引用
+      // 關卡 2 狀態 (20 關專屬)
+      let currentSubLevel = 1; // 1 ~ 20
+      let subLevelCleared = new Array(20).fill(false);
+      let stepCount = 0;
+      let currentBoard = [];
+
+      // 關卡 2 預設 20 關數據庫 (嚴格保證必定可解)
+      const stage2Levels = [
+        { level: 1,  gridSize: 3, minSteps: 1, board: [true, false, true, false, false, false, true, false, true] },
+        { level: 2,  gridSize: 3, minSteps: 1, board: [false, false, true, false, true, true, true, true, true] },
+        { level: 3,  gridSize: 3, minSteps: 1, board: [false, false, false, true, false, true, true, true, true] },
+        { level: 4,  gridSize: 3, minSteps: 2, board: [false, false, true, false, true, false, true, false, false] },
+        { level: 5,  gridSize: 3, minSteps: 2, board: [true, false, false, false, true, false, false, false, true] },
+        { level: 6,  gridSize: 3, minSteps: 2, board: [false, false, false, true, true, true, false, false, false] },
+        { level: 7,  gridSize: 3, minSteps: 2, board: [false, true, false, false, true, false, false, true, false] },
+        { level: 8,  gridSize: 3, minSteps: 3, board: [false, true, false, false, true, true, true, false, false] },
+        { level: 9,  gridSize: 3, minSteps: 3, board: [false, true, false, false, false, false, false, true, false] },
+        { level: 10, gridSize: 3, minSteps: 3, board: [false, true, true, true, false, true, true, true, false] },
+        
+        // 4x4 矩陣關卡 (11 - 20)
+        { level: 11, gridSize: 4, minSteps: 2, board: [true, false, true, true, false, false, true, true, true, true, false, false, true, true, false, true] },
+        { level: 12, gridSize: 4, minSteps: 2, board: [false, false, true, true, false, true, true, true, true, true, true, false, true, true, false, false] },
+        { level: 13, gridSize: 4, minSteps: 4, board: [false, false, false, false, false, true, true, false, false, true, true, false, false, false, false, false] },
+        { level: 14, gridSize: 4, minSteps: 4, board: [true, false, false, true, false, false, false, false, false, false, false, false, true, false, false, true] },
+        { level: 15, gridSize: 4, minSteps: 4, board: [false, true, true, false, true, false, false, true, true, false, false, true, false, true, true, false] },
+        { level: 16, gridSize: 4, minSteps: 4, board: [false, true, true, true, true, false, true, true, true, true, false, true, true, true, true, false] },
+        { level: 17, gridSize: 4, minSteps: 4, board: [true, true, true, false, true, true, false, true, true, false, true, true, false, true, true, true] },
+        { level: 18, gridSize: 4, minSteps: 4, board: [true, false, false, true, false, true, true, false, false, true, true, false, true, false, false, true] },
+        { level: 19, gridSize: 4, minSteps: 6, board: [false, false, false, false, false, false, false, true, false, false, false, true, false, true, true, false] },
+        { level: 20, gridSize: 4, minSteps: 8, board: [false, true, true, false, true, false, false, true, true, false, false, true, false, true, true, false] }
+      ];
+
       const puzzleArea = document.getElementById('puzzle-area');
       const terminalLog = document.getElementById('terminal-log');
       const timeDisplay = document.getElementById('time-display');
       const soundBtn = document.getElementById('sound-btn');
 
-      // Web Audio 合成器
+      // 聲音引擎
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
       function playSound(type) {
@@ -417,7 +471,6 @@
         }
       }
 
-      // Log 系統訊息
       function addLog(msg, type = 'system') {
         const div = document.createElement('div');
         div.className = `log-msg ${type}`;
@@ -426,7 +479,6 @@
         terminalLog.scrollTop = terminalLog.scrollHeight;
       }
 
-      // 時間更新
       function startTimer() {
         timerInterval = setInterval(() => {
           const elapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -436,7 +488,6 @@
         }, 1000);
       }
 
-      // 切換進度條狀態
       function updateProgressBar(stage) {
         for (let i = 1; i <= 4; i++) {
           const node = document.getElementById(`node-${i}`);
@@ -476,23 +527,65 @@
         });
       }
 
-      // ==================== 關卡 2：電路矩陣 (Lights Out) ====================
-      let gridState = [
-        false, true, false,
-        true, false, true,
-        false, true, false
-      ];
-
+      // ==================== 關卡 2：20 關電路矩陣系統 ====================
       function renderStage2() {
         updateProgressBar(2);
-        addLog('【關卡 2】啟動電路連通矩陣。將所有 9 個節點充能至高亮藍光。', 'system');
+        addLog('【關卡 2】進入 20 節點電路驗證矩陣。將所有晶片充能為藍光即可通關。', 'system');
+
+        loadSubLevel(currentSubLevel);
+      }
+
+      function loadSubLevel(lvlNum) {
+        currentSubLevel = lvlNum;
+        stepCount = 0;
+        const levelData = stage2Levels[lvlNum - 1];
+        currentBoard = [...levelData.board];
 
         puzzleArea.innerHTML = `
-          <div style="text-align:center;">
-            <p style="color:var(--neon-cyan); margin-bottom:10px;">點擊節點翻轉電路狀態：</p>
-            <div class="grid-3x3" id="circuit-grid"></div>
+          <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center;">
+            <!-- 20 關選擇列表 -->
+            <div class="level-selector-grid">
+              ${stage2Levels.map(l => `
+                <button class="sub-level-btn ${l.level === currentSubLevel ? 'active' : ''} ${subLevelCleared[l.level - 1] ? 'cleared' : ''}" data-lvl="${l.level}">
+                  ${String(l.level).padStart(2, '0')}
+                </button>
+              `).join('')}
+            </div>
+
+            <p style="color:var(--neon-gold); font-size:0.9rem; margin-bottom:10px;">
+              關卡 ${String(currentSubLevel).padStart(2, '0')} / 20 （陣列: ${levelData.gridSize}x${levelData.gridSize} | 最佳解法: ${levelData.minSteps} 步 | 當前步數: <span id="step-counter">0</span>）
+            </p>
+
+            <!-- 動態電路網格 -->
+            <div id="circuit-grid" class="${levelData.gridSize === 3 ? 'grid-3x3' : 'grid-4x4'}"></div>
+
+            <div class="grid-controls">
+              <button id="btn-reset-lvl" class="btn-cyber">重置本關</button>
+              <button id="btn-prev-lvl" class="btn-cyber" ${currentSubLevel === 1 ? 'disabled' : ''}>上一關</button>
+              <button id="btn-next-lvl" class="btn-cyber" ${currentSubLevel === 20 ? 'disabled' : ''}>下一關</button>
+            </div>
           </div>
         `;
+
+        // 綁定選關鈕
+        document.querySelectorAll('.sub-level-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            playSound('click');
+            loadSubLevel(parseInt(e.target.dataset.lvl, 10));
+          });
+        });
+
+        // 綁定控制鈕
+        document.getElementById('btn-reset-lvl').addEventListener('click', () => {
+          playSound('click');
+          loadSubLevel(currentSubLevel);
+        });
+        document.getElementById('btn-prev-lvl').addEventListener('click', () => {
+          if (currentSubLevel > 1) { playSound('click'); loadSubLevel(currentSubLevel - 1); }
+        });
+        document.getElementById('btn-next-lvl').addEventListener('click', () => {
+          if (currentSubLevel < 20) { playSound('click'); loadSubLevel(currentSubLevel + 1); }
+        });
 
         renderGrid();
       }
@@ -500,7 +593,7 @@
       function renderGrid() {
         const gridEl = document.getElementById('circuit-grid');
         gridEl.innerHTML = '';
-        gridState.forEach((state, idx) => {
+        currentBoard.forEach((state, idx) => {
           const btn = document.createElement('button');
           btn.className = `node-btn ${state ? 'active' : ''}`;
           btn.addEventListener('click', () => toggleNode(idx));
@@ -510,20 +603,40 @@
 
       function toggleNode(idx) {
         playSound('click');
-        const neighbors = [idx];
-        if (idx % 3 > 0) neighbors.push(idx - 1); // 左
-        if (idx % 3 < 2) neighbors.push(idx + 1); // 右
-        if (idx >= 3) neighbors.push(idx - 3);    // 上
-        if (idx < 6) neighbors.push(idx + 3);     // 下
+        stepCount++;
+        const counterEl = document.getElementById('step-counter');
+        if (counterEl) counterEl.textContent = stepCount;
 
-        neighbors.forEach(n => gridState[n] = !gridState[n]);
+        const levelData = stage2Levels[currentSubLevel - 1];
+        const size = levelData.gridSize;
+
+        const neighbors = [idx];
+        if (idx % size > 0) neighbors.push(idx - 1);         // 左
+        if (idx % size < size - 1) neighbors.push(idx + 1); // 右
+        if (idx >= size) neighbors.push(idx - size);        // 上
+        if (idx < size * (size - 1)) neighbors.push(idx + size); // 下
+
+        neighbors.forEach(n => currentBoard[n] = !currentBoard[n]);
         renderGrid();
 
-        if (gridState.every(s => s === true)) {
+        // 檢查通關
+        if (currentBoard.every(s => s === true)) {
           playSound('success');
-          addLog('電路全數通電！系統核心區域已解鎖。', 'success');
-          currentStage = 3;
-          renderStage3();
+          subLevelCleared[currentSubLevel - 1] = true;
+          addLog(`關卡 ${currentSubLevel} 解鎖成功！(耗費步數: ${stepCount})`, 'success');
+
+          if (subLevelCleared.every(s => s === true)) {
+            addLog('🎉 恭喜！20 個電路矩陣關卡全數突破！解鎖階段 3...', 'success');
+            setTimeout(() => {
+              currentStage = 3;
+              renderStage3();
+            }, 1000);
+          } else {
+            // 自動進入下一關
+            if (currentSubLevel < 20) {
+              setTimeout(() => loadSubLevel(currentSubLevel + 1), 600);
+            }
+          }
         }
       }
 
@@ -613,7 +726,6 @@
             flashNode(idx);
             playerSequence.push(idx);
 
-            // 檢查玩家點擊
             const currentStep = playerSequence.length - 1;
             if (playerSequence[currentStep] !== simonSequence[currentStep]) {
               playSound('error');
@@ -670,7 +782,6 @@
         }
       }
 
-      // ==================== 破關畫面 ====================
       function renderWinScreen() {
         clearInterval(timerInterval);
         const finalTime = timeDisplay.textContent.replace('TIME: ', '');
@@ -678,9 +789,9 @@
         puzzleArea.innerHTML = `
           <div class="win-panel">
             <h1 class="win-title">SYSTEM BREACHED</h1>
-            <p style="color:var(--neon-cyan); margin-bottom:15px;">恭喜您成功突破主機防火牆！</p>
+            <p style="color:var(--neon-cyan); margin-bottom:15px;">恭喜您成功突破包含 20 個電路關卡的全數主機防線！</p>
             <p style="margin-bottom:20px; font-size:1.1rem;">總破譯時間：<strong style="color:var(--neon-gold);">${finalTime}</strong></p>
-            <button id="restart-btn" class="btn-metal-primary btn-cyber">重新開始遊戲</button>
+            <button id="restart-btn" class="btn-cyber">重新開始遊戲</button>
           </div>
         `;
 
@@ -689,13 +800,11 @@
         });
       }
 
-      // 音效切換
       soundBtn.addEventListener('click', () => {
         soundEnabled = !soundEnabled;
         soundBtn.textContent = `AUDIO: ${soundEnabled ? 'ON' : 'OFF'}`;
       });
 
-      // 初始化遊戲
       startTimer();
       renderStage1();
     });
