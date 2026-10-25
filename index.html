@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberHack: 系統破譯 - 20關電路解謎</title>
+  <title>CyberNode: 電路重構 - 20關邏輯解謎</title>
+  <!-- Google Fonts: Orbitron & Share Tech Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     /* ==========================================================================
-       賽博復古黑客與金屬風格系統 (Cyber Retro Terminal System)
+       CyberNode Design System - 金屬賽博霓虹風格
        ========================================================================== */
     :root {
       --bg-dark: #080a0f;
@@ -28,20 +29,21 @@
       margin: 0;
       padding: 0;
       user-select: none;
+      -webkit-user-select: none;
     }
 
     body {
-      background: var(--bg-dark);
-      color: #00ff66;
+      background: radial-gradient(circle at center, #1a2233 0%, var(--bg-dark) 100%);
+      color: var(--neon-cyan);
       font-family: var(--font-code);
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      overflow: hidden;
     }
 
-    /* CRT 螢幕復古掃描線效果 */
+    /* CRT 螢幕復古掃描線與濾鏡 */
     .crt-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -50,143 +52,236 @@
         rgba(0, 0, 0, 0.25) 50%
       ), linear-gradient(
         90deg,
-        rgba(255, 0, 0, 0.03),
+        rgba(255, 0, 0, 0.02),
         rgba(0, 255, 0, 0.01),
-        rgba(0, 0, 255, 0.03)
+        rgba(0, 0, 255, 0.02)
       );
       background-size: 100% 3px, 6px 100%;
       pointer-events: none;
       z-index: 999;
     }
 
-    /* 遊戲主容器 */
-    .terminal-wrapper {
+    /* 主遊戲框架 */
+    .game-wrapper {
       width: 90%;
-      max-width: 900px;
-      height: 700px;
-      max-height: 95vh;
+      max-width: 800px;
       background: var(--panel-bg);
       border: 2px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 10px;
       box-shadow: 
-        0 0 25px rgba(0, 243, 255, 0.15),
-        inset 0 0 15px rgba(0, 0, 0, 0.8);
+        0 0 30px rgba(0, 243, 255, 0.2),
+        inset 0 0 15px rgba(0, 0, 0, 0.9);
       display: flex;
       flex-direction: column;
       position: relative;
+      overflow: hidden;
     }
 
-    /* 頂部控制面板 */
-    .terminal-header {
+    /* 頂部標題與控制欄 */
+    .game-header {
       background: #171d2c;
-      padding: 12px 20px;
+      padding: 15px 25px;
       border-bottom: 2px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .terminal-title {
+    .game-title {
       font-family: var(--font-title);
-      font-size: 1.2rem;
+      font-size: 1.4rem;
+      font-weight: 900;
       color: var(--neon-cyan);
       letter-spacing: 2px;
-      text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+      text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
     }
 
-    .header-controls {
+    .game-subtitle {
+      font-size: 0.75rem;
+      color: #6a7b95;
+      letter-spacing: 1px;
+    }
+
+    .header-actions {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       align-items: center;
     }
 
-    .status-badge {
-      font-size: 0.85rem;
-      color: var(--neon-gold);
-    }
-
-    .sound-toggle {
+    .btn-icon {
       background: transparent;
       border: 1px solid var(--neon-cyan);
       color: var(--neon-cyan);
-      padding: 4px 10px;
+      padding: 5px 12px;
       font-family: var(--font-code);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       cursor: pointer;
       border-radius: 4px;
+      transition: all 0.2s;
     }
-    .sound-toggle:hover {
+
+    .btn-icon:hover {
       background: rgba(0, 243, 255, 0.2);
+      box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
     }
 
-    /* 關卡進度條 */
-    .progress-bar {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-      padding: 10px 20px;
-      background: #0d111a;
-      border-bottom: 1px solid var(--border-color);
+    /* 主體區域 */
+    .game-body {
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .stage-node {
+    /* 20關選關按鈕區 */
+    .level-bar-label {
+      font-size: 0.85rem;
+      color: #8fa3c0;
+      margin-bottom: 8px;
       text-align: center;
-      padding: 6px;
-      background: #151a26;
+    }
+
+    .level-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 20px;
+    }
+
+    .lvl-btn {
+      padding: 8px 0;
+      background: #141a26;
       border: 1px solid var(--border-color);
-      font-size: 0.8rem;
       color: #586980;
-      transition: all 0.3s;
-    }
-
-    .stage-node.active {
-      color: var(--neon-cyan);
-      border-color: var(--neon-cyan);
-      background: rgba(0, 243, 255, 0.1);
-      box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
-    }
-
-    .stage-node.cleared {
-      color: var(--neon-green);
-      border-color: var(--neon-green);
-      background: rgba(0, 255, 102, 0.1);
-    }
-
-    /* 終端螢幕區域 */
-    .terminal-body {
-      flex: 1;
-      padding: 20px 25px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow-y: auto;
-    }
-
-    .log-area {
-      background: #090c12;
-      border: 1px solid var(--border-color);
-      padding: 12px 15px;
+      font-family: var(--font-code);
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: center;
       border-radius: 4px;
-      height: 100px;
-      overflow-y: auto;
-      margin-bottom: 15px;
-      font-size: 0.88rem;
-      line-height: 1.4;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+      transition: all 0.2s;
     }
 
-    .log-msg { margin-bottom: 4px; }
-    .log-msg.system { color: var(--neon-cyan); }
-    .log-msg.alert { color: var(--neon-red); }
-    .log-msg.success { color: var(--neon-green); }
+    .lvl-btn:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+    }
 
-    /* 謎題內容展示區 */
-    .puzzle-container {
-      flex: 1;
+    .lvl-btn.active {
+      border-color: var(--neon-cyan);
+      color: #000;
+      background: var(--neon-cyan);
+      font-weight: bold;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .lvl-btn.cleared {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      background: rgba(0, 255, 102, 0.12);
+    }
+
+    .lvl-btn.cleared.active {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 10px var(--neon-green);
+    }
+
+    /* 當前關卡資訊 HUD */
+    .hud-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 500px;
+      background: #0d111a;
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .hud-item {
       display: flex;
       flex-direction: column;
+      align-items: center;
+    }
+
+    .hud-label {
+      font-size: 0.7rem;
+      color: #6a7b95;
+    }
+
+    .hud-val {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    /* 網格區塊 */
+    .arena-container {
+      min-height: 280px;
+      display: flex;
       justify-content: center;
       align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .grid-3x3 {
+      display: grid;
+      grid-template-columns: repeat(3, 75px);
+      gap: 12px;
+    }
+
+    .grid-4x4 {
+      display: grid;
+      grid-template-columns: repeat(4, 62px);
+      gap: 10px;
+    }
+
+    .circuit-node {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #141a26;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .circuit-node::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 35%;
+      height: 35%;
+      border-radius: 50%;
+      background: #2a364f;
+      transition: all 0.2s;
+    }
+
+    /* 充能高亮狀態 */
+    .circuit-node.active {
+      background: rgba(0, 243, 255, 0.15);
+      border-color: var(--neon-cyan);
+      box-shadow: 
+        0 0 15px rgba(0, 243, 255, 0.5),
+        inset 0 0 10px rgba(0, 243, 255, 0.3);
+    }
+
+    .circuit-node.active::after {
+      background: var(--neon-cyan);
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    /* 控制按鈕區 */
+    .control-actions {
+      display: flex;
+      gap: 15px;
     }
 
     .btn-cyber {
@@ -195,7 +290,7 @@
       color: var(--neon-cyan);
       font-family: var(--font-title);
       font-size: 0.9rem;
-      padding: 8px 16px;
+      padding: 10px 20px;
       cursor: pointer;
       border-radius: 4px;
       letter-spacing: 1px;
@@ -205,147 +300,66 @@
     .btn-cyber:hover {
       background: var(--neon-cyan);
       color: #000;
-      box-shadow: 0 0 12px var(--neon-cyan);
-    }
-
-    /* ================= 關卡 2 專屬：20關選關選單與矩陣 ================= */
-    .level-selector-grid {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 6px;
-      margin-bottom: 15px;
-      width: 100%;
-      max-width: 650px;
-    }
-
-    .sub-level-btn {
-      padding: 6px 0;
-      background: #141a26;
-      border: 1px solid var(--border-color);
-      color: #6a7b95;
-      font-family: var(--font-code);
-      font-size: 0.8rem;
-      cursor: pointer;
-      text-align: center;
-      border-radius: 3px;
-      transition: all 0.2s;
-    }
-
-    .sub-level-btn.active {
-      border-color: var(--neon-cyan);
-      color: var(--neon-cyan);
-      background: rgba(0, 243, 255, 0.15);
-      box-shadow: 0 0 6px rgba(0, 243, 255, 0.4);
-    }
-
-    .sub-level-btn.cleared {
-      border-color: var(--neon-green);
-      color: var(--neon-green);
-      background: rgba(0, 255, 102, 0.1);
-    }
-
-    .grid-controls {
-      display: flex;
-      gap: 12px;
-      margin-top: 15px;
-    }
-
-    /* 3x3 矩陣樣式 */
-    .grid-3x3 {
-      display: grid;
-      grid-template-columns: repeat(3, 65px);
-      gap: 10px;
-    }
-
-    /* 4x4 矩陣樣式 */
-    .grid-4x4 {
-      display: grid;
-      grid-template-columns: repeat(4, 55px);
-      gap: 8px;
-    }
-
-    .node-btn {
-      width: 100%;
-      aspect-ratio: 1;
-      background: #141a26;
-      border: 2px solid var(--border-color);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .node-btn.active {
-      background: var(--neon-cyan);
-      border-color: #ffffff;
       box-shadow: 0 0 15px var(--neon-cyan);
     }
 
-    /* 關卡 1、3、4 樣式 */
-    .cipher-input-group { display: flex; gap: 10px; margin-top: 15px; }
-    .cyber-input {
-      background: #080a0f;
-      border: 1px solid var(--neon-green);
-      color: var(--neon-green);
-      font-family: var(--font-code);
-      font-size: 1.2rem;
-      padding: 8px 15px;
-      text-transform: uppercase;
-      outline: none;
-      letter-spacing: 2px;
+    .btn-cyber:disabled {
+      border-color: #2a364f;
+      color: #415068;
+      background: #101622;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* 破關與訊息通知 Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(5, 7, 10, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-panel {
+      background: linear-gradient(135deg, #1a2233 0%, #0d111a 100%);
+      border: 2px solid var(--neon-green);
+      padding: 35px;
+      border-radius: 8px;
       text-align: center;
-      width: 220px;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(0, 255, 102, 0.3);
     }
 
-    .keypad-display {
+    .modal-title {
       font-family: var(--font-title);
-      font-size: 2rem;
+      font-size: 1.8rem;
       color: var(--neon-green);
-      background: #080a0f;
-      border: 1px solid var(--neon-green);
-      padding: 10px 30px;
-      letter-spacing: 8px;
-      margin-bottom: 15px;
-      border-radius: 4px;
-    }
-    .keypad-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 60px);
-      gap: 10px;
-    }
-    .num-btn {
-      width: 60px;
-      height: 50px;
-      background: #161d2a;
-      border: 1px solid var(--border-color);
-      color: #fff;
-      font-family: var(--font-title);
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    .num-btn:hover { border-color: var(--neon-green); color: var(--neon-green); }
-
-    .simon-grid { display: flex; gap: 15px; margin-top: 20px; }
-    .simon-node {
-      width: 65px;
-      height: 120px;
-      background: #141a26;
-      border: 2px solid var(--border-color);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .simon-node.lit-0 { background: #ff0055; box-shadow: 0 0 20px #ff0055; border-color: #fff; }
-    .simon-node.lit-1 { background: #00f3ff; box-shadow: 0 0 20px #00f3ff; border-color: #fff; }
-    .simon-node.lit-2 { background: #00ff66; box-shadow: 0 0 20px #00ff66; border-color: #fff; }
-    .simon-node.lit-3 { background: #ffcc00; box-shadow: 0 0 20px #ffcc00; border-color: #fff; }
-
-    .win-panel { text-align: center; }
-    .win-title {
-      font-family: var(--font-title);
-      font-size: 2.2rem;
-      color: var(--neon-green);
-      text-shadow: 0 0 15px var(--neon-green);
+      text-shadow: 0 0 10px var(--neon-green);
       margin-bottom: 10px;
+    }
+
+    .modal-desc {
+      color: #a0aec0;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    /* 響應式微調 */
+    @media (max-width: 600px) {
+      .level-selector-grid { grid-template-columns: repeat(5, 1fr); }
+      .grid-3x3 { grid-template-columns: repeat(3, 60px); }
+      .grid-4x4 { grid-template-columns: repeat(4, 50px); }
+      .game-title { font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -353,49 +367,79 @@
 
   <div class="crt-overlay"></div>
 
-  <div class="terminal-wrapper">
-    <header class="terminal-header">
-      <div class="terminal-title">CYBERHACK // MAIN_FRAME</div>
-      <div class="header-controls">
-        <span id="time-display" class="status-badge">TIME: 00:00</span>
-        <button id="sound-btn" class="sound-toggle">AUDIO: ON</button>
+  <div class="game-wrapper">
+    <!-- 頂部欄 -->
+    <header class="game-header">
+      <div>
+        <h1 class="game-title">CyberNode // 電路重構</h1>
+        <p class="game-subtitle">20-LEVEL CIRCUIT MATRIX PUZZLE</p>
+      </div>
+      <div class="header-actions">
+        <button id="sound-btn" class="btn-icon">音效: ON</button>
+        <button id="reset-progress-btn" class="btn-icon" style="border-color:var(--neon-red); color:var(--neon-red);">重設進度</button>
       </div>
     </header>
 
-    <div class="progress-bar">
-      <div id="node-1" class="stage-node active">01. 密文解碼</div>
-      <div id="node-2" class="stage-node">02. 電路矩陣 (20關)</div>
-      <div id="node-3" class="stage-node">03. 系統密碼</div>
-      <div id="node-4" class="stage-node">04. 記憶超載</div>
-    </div>
+    <!-- 遊戲主要內容 -->
+    <main class="game-body">
+      <div class="level-bar-label">SELECT CIRCUIT STAGE (關卡選擇)</div>
+      
+      <!-- 20關快速選擇切換區 -->
+      <div id="level-grid" class="level-selector-grid"></div>
 
-    <div class="terminal-body">
-      <div id="terminal-log" class="log-area">
-        <div class="log-msg system">[SYSTEM] 安全主機連接成功。進入協定突破模式...</div>
+      <!-- HUD 當前數據 -->
+      <div class="hud-info">
+        <div class="hud-item">
+          <span class="hud-label">當前關卡</span>
+          <span id="hud-level" class="hud-val">01 / 20</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">晶片陣列</span>
+          <span id="hud-grid-size" class="hud-val">3 x 3</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">當前步數</span>
+          <span id="hud-steps" class="hud-val">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">理論最少步數</span>
+          <span id="hud-min-steps" class="hud-val">1</span>
+        </div>
       </div>
 
-      <div id="puzzle-area" class="puzzle-container"></div>
+      <!-- 電路節點網格 -->
+      <div class="arena-container">
+        <div id="circuit-arena"></div>
+      </div>
+
+      <!-- 控制按鈕 -->
+      <div class="control-actions">
+        <button id="btn-restart" class="btn-cyber">重置本關</button>
+        <button id="btn-prev" class="btn-cyber">上一關</button>
+        <button id="btn-next" class="btn-cyber">下一關</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- 20關全部通關 Modal -->
+  <div id="win-modal" class="modal-overlay">
+    <div class="modal-panel">
+      <h2 class="modal-title">SYSTEM RECONFIGURED</h2>
+      <p class="modal-desc">
+        恭喜！您已成功解開全部 20 個電路連鎖節點，完成高階晶片過載重構！
+      </p>
+      <button id="modal-close-btn" class="btn-cyber" style="border-color:var(--neon-green); color:var(--neon-green);">返回關卡</button>
     </div>
   </div>
 
   <script>
     /**
-     * CyberHack Engine v2.0 - 20 Levels Circuit Grid Edition
+     * CyberNode Logic Engine
      */
     document.addEventListener('DOMContentLoaded', () => {
-      let currentStage = 1;
-      let soundEnabled = true;
-      let startTime = Date.now();
-      let timerInterval = null;
-
-      // 關卡 2 狀態 (20 關專屬)
-      let currentSubLevel = 1; // 1 ~ 20
-      let subLevelCleared = new Array(20).fill(false);
-      let stepCount = 0;
-      let currentBoard = [];
-
-      // 關卡 2 預設 20 關數據庫 (嚴格保證必定可解)
-      const stage2Levels = [
+      // 20 關邏輯預設值 (確保 100% 均可順利解開)
+      const LEVELS_DATA = [
+        // 3x3 陣列 (1 - 10 關)
         { level: 1,  gridSize: 3, minSteps: 1, board: [true, false, true, false, false, false, true, false, true] },
         { level: 2,  gridSize: 3, minSteps: 1, board: [false, false, true, false, true, true, true, true, true] },
         { level: 3,  gridSize: 3, minSteps: 1, board: [false, false, false, true, false, true, true, true, true] },
@@ -407,7 +451,7 @@
         { level: 9,  gridSize: 3, minSteps: 3, board: [false, true, false, false, false, false, false, true, false] },
         { level: 10, gridSize: 3, minSteps: 3, board: [false, true, true, true, false, true, true, true, false] },
         
-        // 4x4 矩陣關卡 (11 - 20)
+        // 4x4 陣列 (11 - 20 關)
         { level: 11, gridSize: 4, minSteps: 2, board: [true, false, true, true, false, false, true, true, true, true, false, false, true, true, false, true] },
         { level: 12, gridSize: 4, minSteps: 2, board: [false, false, true, true, false, true, true, true, true, true, true, false, true, true, false, false] },
         { level: 13, gridSize: 4, minSteps: 4, board: [false, false, false, false, false, true, true, false, false, true, true, false, false, false, false, false] },
@@ -420,12 +464,31 @@
         { level: 20, gridSize: 4, minSteps: 8, board: [false, true, true, false, true, false, false, true, true, false, false, true, false, true, true, false] }
       ];
 
-      const puzzleArea = document.getElementById('puzzle-area');
-      const terminalLog = document.getElementById('terminal-log');
-      const timeDisplay = document.getElementById('time-display');
-      const soundBtn = document.getElementById('sound-btn');
+      // 遊戲狀態變數
+      let currentLevel = 1;
+      let currentBoard = [];
+      let stepCount = 0;
+      let soundEnabled = true;
+      let clearedLevels = JSON.parse(localStorage.getItem('cybernode_cleared') || '[]');
 
-      // 聲音引擎
+      // DOM 元素引用
+      const levelGrid = document.getElementById('level-grid');
+      const circuitArena = document.getElementById('circuit-arena');
+      const hudLevel = document.getElementById('hud-level');
+      const hudGridSize = document.getElementById('hud-grid-size');
+      const hudSteps = document.getElementById('hud-steps');
+      const hudMinSteps = document.getElementById('hud-min-steps');
+
+      const btnRestart = document.getElementById('btn-restart');
+      const btnPrev = document.getElementById('btn-prev');
+      const btnNext = document.getElementById('btn-next');
+      const soundBtn = document.getElementById('sound-btn');
+      const resetProgressBtn = document.getElementById('reset-progress-btn');
+
+      const winModal = document.getElementById('win-modal');
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+
+      // Web Audio API 音效引擎
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
       function playSound(type) {
@@ -441,372 +504,179 @@
 
         if (type === 'click') {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(600, now);
-          gain.gain.setValueAtTime(0.1, now);
+          osc.frequency.setValueAtTime(500, now);
+          osc.frequency.exponentialRampToValueAtTime(250, now + 0.05);
+          gain.gain.setValueAtTime(0.15, now);
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
           osc.start(now);
           osc.stop(now + 0.05);
-        } else if (type === 'success') {
+        } else if (type === 'clear') {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(440, now);
-          osc.frequency.setValueAtTime(880, now + 0.1);
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
           gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
           osc.start(now);
-          osc.stop(now + 0.25);
-        } else if (type === 'error') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(150, now);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-          osc.start(now);
-          osc.stop(now + 0.15);
-        } else if (type === 'beep') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(523.25 + type * 100, now);
-          gain.gain.setValueAtTime(0.15, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-          osc.start(now);
-          osc.stop(now + 0.1);
-        }
-      }
-
-      function addLog(msg, type = 'system') {
-        const div = document.createElement('div');
-        div.className = `log-msg ${type}`;
-        div.textContent = `> ${msg}`;
-        terminalLog.appendChild(div);
-        terminalLog.scrollTop = terminalLog.scrollHeight;
-      }
-
-      function startTimer() {
-        timerInterval = setInterval(() => {
-          const elapsed = Math.floor((Date.now() - startTime) / 1000);
-          const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
-          const secs = String(elapsed % 60).padStart(2, '0');
-          timeDisplay.textContent = `TIME: ${mins}:${secs}`;
-        }, 1000);
-      }
-
-      function updateProgressBar(stage) {
-        for (let i = 1; i <= 4; i++) {
-          const node = document.getElementById(`node-${i}`);
-          node.classList.remove('active', 'cleared');
-          if (i < stage) node.classList.add('cleared');
-          else if (i === stage) node.classList.add('active');
-        }
-      }
-
-      // ==================== 關卡 1：密文解碼 ====================
-      function renderStage1() {
-        updateProgressBar(1);
-        addLog('【關卡 1】攔截到系統封包。需輸入金鑰解鎖。', 'system');
-        addLog('密文提示：LOG = "FBEHU" (解密規則: 凱撒位移 -3)', 'alert');
-
-        puzzleArea.innerHTML = `
-          <div style="text-align:center;">
-            <p style="color:var(--neon-cyan); margin-bottom:10px;">請解碼加密字串 [ FBEHU ]：</p>
-            <div class="cipher-input-group">
-              <input type="text" id="stage1-input" class="cyber-input" maxlength="5" placeholder="_____">
-              <button id="stage1-btn" class="btn-cyber">解碼驗證</button>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('stage1-btn').addEventListener('click', () => {
-          const val = document.getElementById('stage1-input').value.trim().toUpperCase();
-          if (val === 'CYBER') {
-            playSound('success');
-            addLog('密碼正確！第一層防火牆已突破。', 'success');
-            currentStage = 2;
-            renderStage2();
-          } else {
-            playSound('error');
-            addLog('驗證失敗：密碼不符合解密金鑰。', 'alert');
-          }
-        });
-      }
-
-      // ==================== 關卡 2：20 關電路矩陣系統 ====================
-      function renderStage2() {
-        updateProgressBar(2);
-        addLog('【關卡 2】進入 20 節點電路驗證矩陣。將所有晶片充能為藍光即可通關。', 'system');
-
-        loadSubLevel(currentSubLevel);
-      }
-
-      function loadSubLevel(lvlNum) {
-        currentSubLevel = lvlNum;
-        stepCount = 0;
-        const levelData = stage2Levels[lvlNum - 1];
-        currentBoard = [...levelData.board];
-
-        puzzleArea.innerHTML = `
-          <div style="text-align:center; width:100%; display:flex; flex-direction:column; align-items:center;">
-            <!-- 20 關選擇列表 -->
-            <div class="level-selector-grid">
-              ${stage2Levels.map(l => `
-                <button class="sub-level-btn ${l.level === currentSubLevel ? 'active' : ''} ${subLevelCleared[l.level - 1] ? 'cleared' : ''}" data-lvl="${l.level}">
-                  ${String(l.level).padStart(2, '0')}
-                </button>
-              `).join('')}
-            </div>
-
-            <p style="color:var(--neon-gold); font-size:0.9rem; margin-bottom:10px;">
-              關卡 ${String(currentSubLevel).padStart(2, '0')} / 20 （陣列: ${levelData.gridSize}x${levelData.gridSize} | 最佳解法: ${levelData.minSteps} 步 | 當前步數: <span id="step-counter">0</span>）
-            </p>
-
-            <!-- 動態電路網格 -->
-            <div id="circuit-grid" class="${levelData.gridSize === 3 ? 'grid-3x3' : 'grid-4x4'}"></div>
-
-            <div class="grid-controls">
-              <button id="btn-reset-lvl" class="btn-cyber">重置本關</button>
-              <button id="btn-prev-lvl" class="btn-cyber" ${currentSubLevel === 1 ? 'disabled' : ''}>上一關</button>
-              <button id="btn-next-lvl" class="btn-cyber" ${currentSubLevel === 20 ? 'disabled' : ''}>下一關</button>
-            </div>
-          </div>
-        `;
-
-        // 綁定選關鈕
-        document.querySelectorAll('.sub-level-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            playSound('click');
-            loadSubLevel(parseInt(e.target.dataset.lvl, 10));
+          osc.stop(now + 0.35);
+        } else if (type === 'win') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.frequency.value = freq;
+            g.gain.setValueAtTime(0.15, now + i * 0.1);
+            g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.3);
+            o.start(now + i * 0.1);
+            o.stop(now + i * 0.1 + 0.3);
           });
-        });
-
-        // 綁定控制鈕
-        document.getElementById('btn-reset-lvl').addEventListener('click', () => {
-          playSound('click');
-          loadSubLevel(currentSubLevel);
-        });
-        document.getElementById('btn-prev-lvl').addEventListener('click', () => {
-          if (currentSubLevel > 1) { playSound('click'); loadSubLevel(currentSubLevel - 1); }
-        });
-        document.getElementById('btn-next-lvl').addEventListener('click', () => {
-          if (currentSubLevel < 20) { playSound('click'); loadSubLevel(currentSubLevel + 1); }
-        });
-
-        renderGrid();
+        }
       }
 
-      function renderGrid() {
-        const gridEl = document.getElementById('circuit-grid');
-        gridEl.innerHTML = '';
-        currentBoard.forEach((state, idx) => {
+      // 渲染頂部 20 關選擇器
+      function renderLevelSelector() {
+        levelGrid.innerHTML = '';
+        for (let i = 1; i <= 20; i++) {
           const btn = document.createElement('button');
-          btn.className = `node-btn ${state ? 'active' : ''}`;
-          btn.addEventListener('click', () => toggleNode(idx));
-          gridEl.appendChild(btn);
+          btn.className = `lvl-btn ${i === currentLevel ? 'active' : ''} ${clearedLevels.includes(i) ? 'cleared' : ''}`;
+          btn.textContent = String(i).padStart(2, '0');
+          btn.addEventListener('click', () => {
+            playSound('click');
+            loadLevel(i);
+          });
+          levelGrid.appendChild(btn);
+        }
+      }
+
+      // 載入關卡
+      function loadLevel(lvlNum) {
+        currentLevel = lvlNum;
+        stepCount = 0;
+        const data = LEVELS_DATA[lvlNum - 1];
+        currentBoard = [...data.board];
+
+        // 更新 HUD
+        hudLevel.textContent = `${String(lvlNum).padStart(2, '0')} / 20`;
+        hudGridSize.textContent = `${data.gridSize} x ${data.gridSize}`;
+        hudSteps.textContent = '0';
+        hudMinSteps.textContent = data.minSteps;
+
+        // 更新按鈕狀態
+        btnPrev.disabled = (currentLevel === 1);
+        btnNext.disabled = (currentLevel === 20);
+
+        renderLevelSelector();
+        renderArenaGrid();
+      }
+
+      // 渲染電路網格
+      function renderArenaGrid() {
+        circuitArena.innerHTML = '';
+        const data = LEVELS_DATA[currentLevel - 1];
+        circuitArena.className = (data.gridSize === 3) ? 'grid-3x3' : 'grid-4x4';
+
+        currentBoard.forEach((state, idx) => {
+          const node = document.createElement('div');
+          node.className = `circuit-node ${state ? 'active' : ''}`;
+          node.addEventListener('click', () => handleNodeClick(idx));
+          circuitArena.appendChild(node);
         });
       }
 
-      function toggleNode(idx) {
+      // 點擊節點翻轉邏輯
+      function handleNodeClick(idx) {
         playSound('click');
         stepCount++;
-        const counterEl = document.getElementById('step-counter');
-        if (counterEl) counterEl.textContent = stepCount;
+        hudSteps.textContent = stepCount;
 
-        const levelData = stage2Levels[currentSubLevel - 1];
-        const size = levelData.gridSize;
+        const data = LEVELS_DATA[currentLevel - 1];
+        const size = data.gridSize;
 
-        const neighbors = [idx];
-        if (idx % size > 0) neighbors.push(idx - 1);         // 左
-        if (idx % size < size - 1) neighbors.push(idx + 1); // 右
-        if (idx >= size) neighbors.push(idx - size);        // 上
-        if (idx < size * (size - 1)) neighbors.push(idx + size); // 下
+        // 計算受影響的鄰居 (十字翻轉)
+        const targets = [idx];
+        if (idx % size > 0) targets.push(idx - 1);         // 左
+        if (idx % size < size - 1) targets.push(idx + 1); // 右
+        if (idx >= size) targets.push(idx - size);        // 上
+        if (idx < size * (size - 1)) targets.push(idx + size); // 下
 
-        neighbors.forEach(n => currentBoard[n] = !currentBoard[n]);
-        renderGrid();
+        targets.forEach(t => {
+          currentBoard[t] = !currentBoard[t];
+        });
 
-        // 檢查通關
+        renderArenaGrid();
+        checkVictory();
+      }
+
+      // 檢查是否所有晶片節點皆已充能 (全為 true)
+      function checkVictory() {
         if (currentBoard.every(s => s === true)) {
-          playSound('success');
-          subLevelCleared[currentSubLevel - 1] = true;
-          addLog(`關卡 ${currentSubLevel} 解鎖成功！(耗費步數: ${stepCount})`, 'success');
+          // 標記通關
+          if (!clearedLevels.includes(currentLevel)) {
+            clearedLevels.push(currentLevel);
+            localStorage.setItem('cybernode_cleared', JSON.stringify(clearedLevels));
+          }
 
-          if (subLevelCleared.every(s => s === true)) {
-            addLog('🎉 恭喜！20 個電路矩陣關卡全數突破！解鎖階段 3...', 'success');
+          renderLevelSelector();
+
+          // 是否為最終全通關
+          if (clearedLevels.length === 20) {
+            playSound('win');
             setTimeout(() => {
-              currentStage = 3;
-              renderStage3();
-            }, 1000);
+              winModal.classList.add('active');
+            }, 300);
           } else {
-            // 自動進入下一關
-            if (currentSubLevel < 20) {
-              setTimeout(() => loadSubLevel(currentSubLevel + 1), 600);
+            playSound('clear');
+            // 提示通關並自動前往下一關
+            if (currentLevel < 20) {
+              setTimeout(() => {
+                loadLevel(currentLevel + 1);
+              }, 400);
             }
           }
         }
       }
 
-      // ==================== 關卡 3：數字鎖 ====================
-      let enteredCode = "";
-      function renderStage3() {
-        updateProgressBar(3);
-        addLog('【關卡 3】安全權限認證。輸入系統日誌中的 4 位數字 Passcode。', 'system');
-        addLog('提示日誌：阿波羅 11 號登月年份 (1969)', 'alert');
+      // 按鈕事件綁定
+      btnRestart.addEventListener('click', () => {
+        playSound('click');
+        loadLevel(currentLevel);
+      });
 
-        puzzleArea.innerHTML = `
-          <div style="text-align:center;">
-            <div id="key-display" class="keypad-display">____</div>
-            <div class="keypad-grid">
-              ${[1,2,3,4,5,6,7,8,9,0].map(n => `<button class="num-btn" data-num="${n}">${n}</button>`).join('')}
-              <button class="num-btn" id="key-clear" style="color:var(--neon-red);">CLR</button>
-            </div>
-          </div>
-        `;
-
-        document.querySelectorAll('.num-btn[data-num]').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            playSound('click');
-            if (enteredCode.length < 4) {
-              enteredCode += e.target.dataset.num;
-              updateKeyDisplay();
-            }
-            if (enteredCode.length === 4) {
-              if (enteredCode === "1969") {
-                playSound('success');
-                addLog('權限認證成功！進度移至最後防線。', 'success');
-                currentStage = 4;
-                renderStage4();
-              } else {
-                playSound('error');
-                addLog('存取拒絕：密碼錯誤！', 'alert');
-                enteredCode = "";
-                setTimeout(updateKeyDisplay, 500);
-              }
-            }
-          });
-        });
-
-        document.getElementById('key-clear').addEventListener('click', () => {
+      btnPrev.addEventListener('click', () => {
+        if (currentLevel > 1) {
           playSound('click');
-          enteredCode = "";
-          updateKeyDisplay();
-        });
-      }
-
-      function updateKeyDisplay() {
-        const display = document.getElementById('key-display');
-        display.textContent = enteredCode.padEnd(4, '_');
-      }
-
-      // ==================== 關卡 4：記憶超載 ====================
-      let simonSequence = [];
-      let playerSequence = [];
-      let isShowingSequence = false;
-
-      function renderStage4() {
-        updateProgressBar(4);
-        addLog('【關卡 4】終極防禦機制。請複寫並重現記憶光軸閃爍順序。', 'system');
-
-        puzzleArea.innerHTML = `
-          <div style="text-align:center;">
-            <p id="simon-status" style="color:var(--neon-cyan); margin-bottom:10px;">準備載入記憶序列...</p>
-            <div class="simon-grid">
-              <div class="simon-node" data-idx="0"></div>
-              <div class="simon-node" data-idx="1"></div>
-              <div class="simon-node" data-idx="2"></div>
-              <div class="simon-node" data-idx="3"></div>
-            </div>
-            <button id="simon-start-btn" class="btn-cyber" style="margin-top:20px;">開始接收號誌</button>
-          </div>
-        `;
-
-        document.getElementById('simon-start-btn').addEventListener('click', () => {
-          document.getElementById('simon-start-btn').style.display = 'none';
-          generateSimonSequence();
-        });
-
-        document.querySelectorAll('.simon-node').forEach(node => {
-          node.addEventListener('click', (e) => {
-            if (isShowingSequence) return;
-            const idx = parseInt(e.target.dataset.idx, 10);
-            flashNode(idx);
-            playerSequence.push(idx);
-
-            const currentStep = playerSequence.length - 1;
-            if (playerSequence[currentStep] !== simonSequence[currentStep]) {
-              playSound('error');
-              addLog('記憶同步失敗！重新載入記憶序列...', 'alert');
-              playerSequence = [];
-              setTimeout(playSimonSequence, 1000);
-              return;
-            }
-
-            if (playerSequence.length === simonSequence.length) {
-              playSound('success');
-              addLog('核心記憶完全同步！主機破譯完成！', 'success');
-              setTimeout(renderWinScreen, 800);
-            }
-          });
-        });
-      }
-
-      function generateSimonSequence() {
-        simonSequence = [];
-        for (let i = 0; i < 5; i++) {
-          simonSequence.push(Math.floor(Math.random() * 4));
+          loadLevel(currentLevel - 1);
         }
-        playSimonSequence();
-      }
+      });
 
-      function playSimonSequence() {
-        isShowingSequence = true;
-        playerSequence = [];
-        const status = document.getElementById('simon-status');
-        if (status) status.textContent = "觀察號誌順序中...";
-
-        simonSequence.forEach((nodeIdx, step) => {
-          setTimeout(() => {
-            flashNode(nodeIdx);
-            if (step === simonSequence.length - 1) {
-              setTimeout(() => {
-                isShowingSequence = false;
-                if (status) status.textContent = "請依序輸入記憶光軸號誌！";
-              }, 400);
-            }
-          }, (step + 1) * 600);
-        });
-      }
-
-      function flashNode(idx) {
-        const nodes = document.querySelectorAll('.simon-node');
-        if (nodes[idx]) {
-          playSound('beep');
-          nodes[idx].classList.add(`lit-${idx}`);
-          setTimeout(() => {
-            nodes[idx].classList.remove(`lit-${idx}`);
-          }, 300);
+      btnNext.addEventListener('click', () => {
+        if (currentLevel < 20) {
+          playSound('click');
+          loadLevel(currentLevel + 1);
         }
-      }
-
-      function renderWinScreen() {
-        clearInterval(timerInterval);
-        const finalTime = timeDisplay.textContent.replace('TIME: ', '');
-
-        puzzleArea.innerHTML = `
-          <div class="win-panel">
-            <h1 class="win-title">SYSTEM BREACHED</h1>
-            <p style="color:var(--neon-cyan); margin-bottom:15px;">恭喜您成功突破包含 20 個電路關卡的全數主機防線！</p>
-            <p style="margin-bottom:20px; font-size:1.1rem;">總破譯時間：<strong style="color:var(--neon-gold);">${finalTime}</strong></p>
-            <button id="restart-btn" class="btn-cyber">重新開始遊戲</button>
-          </div>
-        `;
-
-        document.getElementById('restart-btn').addEventListener('click', () => {
-          location.reload();
-        });
-      }
+      });
 
       soundBtn.addEventListener('click', () => {
         soundEnabled = !soundEnabled;
-        soundBtn.textContent = `AUDIO: ${soundEnabled ? 'ON' : 'OFF'}`;
+        soundBtn.textContent = `音效: ${soundEnabled ? 'ON' : 'OFF'}`;
       });
 
-      startTimer();
-      renderStage1();
+      resetProgressBtn.addEventListener('click', () => {
+        if (confirm('確定要重設所有 20 關的通關紀錄嗎？')) {
+          clearedLevels = [];
+          localStorage.removeItem('cybernode_cleared');
+          playSound('click');
+          loadLevel(1);
+        }
+      });
+
+      modalCloseBtn.addEventListener('click', () => {
+        winModal.classList.remove('active');
+      });
+
+      // 初始化遊戲
+      loadLevel(currentLevel);
     });
   </script>
 </body>
